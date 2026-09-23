@@ -1,0 +1,10 @@
+# Où chaque firmware AKA range les fichiers reçus par le protocole de transfert (AKAT), un langage
+# par ligne : lang_id,dossier_scripts_sur_la_carte_sd,nom_affiche
+# - dossier_scripts_sur_la_carte_sd est relatif à la racine de la carte SD (pas au dossier d'un firmware).
+# - Modifiable directement ici, ou depuis AKA-IDE (Réglages -> Langages) : chaque firmware relit ce
+#   fichier au démarrage, aucune recompilation n'est nécessaire pour changer un chemin.
+# - Un lang_id qu'un firmware ne reconnaît pas de toute façon (transferLangId différent du sien) est
+#   simplement ignoré par ce firmware : ce fichier est PARTAGÉ, chaque firmware n'y lit que sa propre ligne.
+# Voir docs/PROTOCOLE_TRANSFERT.md (dépôt AKA-Love) pour le détail du protocole.
+0,AKA_Love/games,Lua (AKA-Love)
+1,py,MicroPython (AKA)

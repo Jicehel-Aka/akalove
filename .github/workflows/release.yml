@@ -1,0 +1,200 @@
+name: Build and release
+
+# UN SEUL workflow. A chaque mise a jour de la branche principale, il compile :
+#   - AKA     : firmware ESP-IDF, empaquete en dossier carte SD pret a copier (avec game.txt et 3 jeux)
+#   - Windows : simulateur PC (MinGW, executable autonome)
+#   - Linux   : simulateur PC + suite de tests
+# puis publie une Release GitHub en incrementant la version MINEURE (v1.4.2 -> v1.5.0).
+# Rien n'est publie si une des compilations (ou des tests) echoue.
+#
+# Pull request : les compilations tournent, sans release. Declenchement manuel : compile et publie.
+#
+# PREREQUIS : la bibliotheque `gamebuino` doit etre dans components/gamebuino (comme dans les autres
+# projets AKA) ; sa correction de casse est appliquee ici par tools/fix_gamebuino_case.py.
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore: ['**.md', 'LICENSE', '.gitignore']
+  pull_request:
+    paths-ignore: ['**.md', 'LICENSE', '.gitignore']
+  workflow_dispatch:
+
+permissions:
+  contents: write # creer la Release et y attacher les fichiers
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }} # jamais d'annulation d'une release en cours
+
+jobs:
+  # ---------------------------------------------------------------- AKA
+  aka:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove stale build cache
+        run: rm -rf build
+
+      - name: Check gamebuino component
+        run: |
+          if [ ! -d components/gamebuino ]; then
+            echo "::error::components/gamebuino est absent : copiez la bibliotheque gamebuino dans components/ (voir README)"
+            exit 1
+          fi
+          python3 tools/fix_gamebuino_case.py components/gamebuino
+
+      - name: Build with ESP-IDF
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v5.5.1
+          target: esp32s3
+          path: '.'
+
+      # firmware.bin = le nom attendu par le loader AKA. Le bootloader et la table de partitions ne
+      # sont volontairement PAS publies : les flasher ecraserait le loader de la console.
+      # sdcard_files/AKA_Love/ : meta.json, Picture.png, screen.bmp... ajoutes tels quels au dossier.
+      # sdcard_files/AKA/ : languages.csv, PARTAGE avec les autres firmwares AKA (dossier de scripts par
+      # langage, voir docs/PROTOCOLE_TRANSFERT.md) -- copie a la racine du zip, PAS dans AKA_Love/, pour
+      # qu'un utilisateur qui installe plusieurs firmwares AKA sur la meme carte n'ait qu'un seul fichier
+      # a fusionner (et non un par firmware).
+      - name: Package
+        run: |
+          test -f build/akalove.bin
+          mkdir -p out/AKA_Love/games out/AKA
+          cp -r sdcard_files/AKA_Love/. out/AKA_Love/
+          cp -r sdcard_files/AKA/. out/AKA/
+          cp -r tests/games/hello tests/games/runner examples/attrape out/AKA_Love/games/
+          printf 'hello\n' > out/AKA_Love/game.txt
+          cp build/akalove.bin out/AKA_Love/firmware.bin
+          cp build/akalove.bin firmware.bin
+          (cd out && zip -r ../aka-love-sdcard.zip AKA_Love AKA)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aka
+          path: |
+            firmware.bin
+            aka-love-sdcard.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  # ---------------------------------------------------------------- PC (Windows + Linux)
+  pc:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux-x64
+          - os: windows-latest
+            name: windows-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Linux : compilation, suite complete de tests (62 controles), paquet ---
+      - name: Build and test (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pil
+          cmake -S sim -B build-sim -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-sim -j"$(nproc)"
+          python3 tests/run_tests.py
+
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p package/games
+          cp build-sim/akalove-sim sim/LISEZMOI.txt package/
+          cp -r tests/games/hello tests/games/runner examples/attrape package/games/
+          (cd package && zip -r ../aka-love-sim-${{ matrix.name }}.zip .)
+
+      # --- Windows : MinGW-w64 via MSYS2 (meme compilateur GCC que Linux, executable statique :
+      # aucune DLL a livrer). Controle rapide : le jeu hello doit s'executer et afficher son message. ---
+      - name: Set up MSYS2 (Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja zip
+
+      - name: Build and smoke test (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          cmake -S sim -B build-sim -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build-sim
+          ./build-sim/akalove-sim.exe tests/games/hello --frames 5 | tee smoke.txt
+          grep -q "Bonjour, tout fonctionne" smoke.txt
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          mkdir -p package/games
+          cp build-sim/akalove-sim.exe sim/LISEZMOI.txt package/
+          cp -r tests/games/hello tests/games/runner examples/attrape package/games/
+          (cd package && zip -r ../aka-love-sim-${{ matrix.name }}.zip .)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pc-${{ matrix.name }}
+          path: aka-love-sim-${{ matrix.name }}.zip
+          if-no-files-found: error
+          retention-days: 7
+
+  # ---------------------------------------------------------------- Release
+  release:
+    if: github.event_name != 'pull_request'
+    needs: [aka, pc]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tous les tags, pour calculer la version suivante
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Next minor version
+        id: version
+        run: |
+          last=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n1)
+          last=${last:-v0.0.0}
+          IFS=. read -r major minor _ <<< "${last#v}"
+          echo "tag=v${major}.$((minor + 1)).0" >> "$GITHUB_OUTPUT"
+
+      # firmware.bin garde son nom (le loader l'attend tel quel) ; les zips recoivent la version.
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          cd artifacts
+          for f in aka-love-*.zip; do mv "$f" "${f%.zip}-${TAG}.zip"; done
+          ls -l
+          gh release create "$TAG" firmware.bin aka-love-*.zip \
+            --target "$GITHUB_SHA" --title "$TAG" --generate-notes
+
+      # Optionnel : prévient le dépôt "AKA Toolkit" (assemblage combiné avec MicroPython-AKA et
+      # AKA-IDE, voir ce dépôt) qu'une nouvelle release est disponible ici, pour qu'il se reconstruise
+      # automatiquement au lieu d'attendre son propre planning hebdomadaire. Nécessite un secret
+      # TOOLKIT_DISPATCH_TOKEN (un Personal Access Token avec le droit "repo" sur le dépôt du Toolkit) ;
+      # sans ce secret, cette étape échoue silencieusement (`|| true`) sans bloquer la release ci-dessus.
+      - name: Notify AKA Toolkit (optional)
+        if: always() && env.TOOLKIT_DISPATCH_TOKEN != ''
+        env:
+          TOOLKIT_DISPATCH_TOKEN: ${{ secrets.TOOLKIT_DISPATCH_TOKEN }}
+        run: |
+          curl -sf -X POST \
+            -H "Authorization: token $TOOLKIT_DISPATCH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/Jicehel-Aka/AKA-Toolkit/dispatches" \
+            -d '{"event_type":"aka-source-released","client_payload":{"repo":"'"$GH_REPO"'","tag":"'"$TAG"'"}}' \
+            || true

@@ -1,0 +1,7 @@
+{
+  "title": "AKA-Love",
+  "description": "Moteur Love2D/Lua embarque : execute des jeux ecrits en Lua (.lua) depuis la carte SD.",
+  "author": "AKA-Love",
+  "version": "0.1.0",
+  "date": "2026-09-23"
+}

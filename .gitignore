@@ -1,0 +1,4 @@
+build/
+build-sim/
+_save/
+tests/out/

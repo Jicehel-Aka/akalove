@@ -1,0 +1,13 @@
+AKA-Love — simulateur PC (sans fenetre)
+
+Execute un jeu Love2D avec le meme runtime que la console (Lua 5.1, love.*), horloge virtuelle
+deterministe, et ecrit une capture de l'ecran 320x240 au format PPM.
+
+  akalove-sim games/hello --frames 60 --shot hello.ppm
+  akalove-sim games/runner --frames 300 --shot runner.ppm --press a:10:12
+
+Options : --frames N  --shot f.ppm  --shot-frame K  --press bouton:de:a  --save dossier
+          --watchdog-ms N  --realtime
+Boutons : up down left right a b c d l1 r1 menu
+
+Une version avec fenetre (SDL2) est prevue. Sources et documentation : depot AKA-Love.
