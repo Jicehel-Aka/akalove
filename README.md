@@ -77,9 +77,11 @@ les captures de la console) à partir de `Picture.png`. Les deux fichiers sont f
 | `love.audio` : `newSource` (WAV, "static"/"stream" traités pareil), `play/stop/pause`, volume, boucle, `clone`, volume maître | **écrit et testé** (simulateur, sans son réel — juste l'état ; console : `gb_audio_player`/`gb_audio_track_wav`, 4 canaux, vérifié contre les vrais en-têtes) |
 | `love.filesystem.newFile` (API objet `open/read/write/close/eof/getSize`) | **écrit et testé** |
 | Souris virtuelle (`love.mouse`, `mousepressed/released`) : curseur piloté par le **stick analogique**, clic = bouton A | **écrit et testé** — approximation : pas de curseur système, le jeu doit dessiner lui-même un sprite à `love.mouse.getPosition()` |
-| Canvas | à faire |
-| Audio (`love.audio`, mixeur) | à faire — P5 |
-| Lanceur de jeux, USB (`akalove` PC), simulateur SDL2 | à faire — P6/P3/P7 |
+| Lanceur de jeux (`game.txt` sur la carte SD) | **écrit et testé** (simulateur) |
+| Transfert USB (`tools/akatransfer.py`, protocole v1.1) | **écrit et testé** (simulateur) ; **jamais essayé sur un vrai port série** |
+| Simulateur PC **avec fenêtre + son** (SDL2, `aka-love-sim`) | **écrit et compilé** (Linux) — c'est le binaire que lance AKA-IDE pour jouer |
+| Canvas (`love.graphics.newCanvas`) | à faire — non requis par les jeux testés |
+| `love.physics` (Box2D) | à faire — gros morceau, seulement si un jeu le demande |
 
 Vérifié : **61 contrôles automatiques passent** (`tests/run_tests.py`), rendus vérifiés pixel par pixel
 (règle « centre du pixel », alpha, rotation, échelle virtuelle, scissor, texte). Le jeu *Infinite Runner*
@@ -111,12 +113,12 @@ incrémentant la **version mineure** (`v0.1.0`, `v0.2.0`, ...). Rien n'est publi
 |---|---|
 | `firmware.bin` | Binaire AKA seul (nom attendu par le loader) |
 | `aka-love-sdcard-vX.Y.0.zip` | Dossier `AKA_Love/` à copier à la racine de la carte SD : `firmware.bin` + `game.txt` + `games/hello`, `games/runner`, `games/attrape` (+ le contenu de `sdcard_files/AKA_Love/` s'il existe : `meta.json`, `Picture.png`...) |
-| `aka-love-sim-windows-x64-vX.Y.0.zip` | Simulateur PC Windows (MinGW, exécutable autonome) + jeux d'exemple |
-| `aka-love-sim-linux-x64-vX.Y.0.zip` | Simulateur PC Linux + jeux d'exemple |
+| `aka-love-sim-windows-x64-vX.Y.0.zip` | Simulateurs PC Windows : `akalove-sim.exe` (sans fenêtre) **et** `aka-love-sim.exe` (SDL2, fenêtre + son, avec `SDL2.dll`) + jeux d'exemple |
+| `aka-love-sim-linux-x64-vX.Y.0.zip` | Simulateurs PC Linux : `akalove-sim` (sans fenêtre) **et** `aka-love-sim` (SDL2, fenêtre + son) + jeux d'exemple |
 
 - **Prérequis** : la bibliothèque `gamebuino` doit être dans `components/gamebuino` du dépôt (comme dans les autres
   projets AKA). Le workflow applique lui-même `tools/fix_gamebuino_case.py` avant de compiler.
-- **Le simulateur PC est sans fenêtre** pour l'instant (il écrit des captures PPM) ; la version SDL2 reste à faire.
+- **Deux simulateurs PC** : `akalove-sim` (sans fenêtre, captures PPM — pour les tests automatisés) et `aka-love-sim` (SDL2 : fenêtre 640×480 + son, pour **jouer**, lancé par AKA-IDE). Détails et commandes clavier dans `sim/LISEZMOI.txt`.
 - **Windows** : le simulateur compile avec MinGW-w64 ; le `.exe` compilé en croisé passe les 62 contrôles sous Wine.
   Sur GitHub, la version Windows fait un contrôle rapide (le jeu `hello` doit s'exécuter) ; la suite complète tourne sous Linux.
 - **Non vérifié** : le job `aka` (ESP-IDF) n'a jamais tourné. Sa première exécution est le premier vrai test de
