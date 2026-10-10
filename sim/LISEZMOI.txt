@@ -10,4 +10,22 @@ Options : --frames N  --shot f.ppm  --shot-frame K  --press bouton:de:a  --save 
           --watchdog-ms N  --realtime
 Boutons : up down left right a b c d l1 r1 menu
 
-Une version avec fenetre (SDL2) est prevue. Sources et documentation : depot AKA-Love.
+
+AKA-Love — simulateur PC AVEC fenetre + son (aka-love-sim, SDL2)
+
+Meme runtime, mais affiche une fenetre 640x480 (ecran 320x240 BGR565 x2) et joue les
+4 voies audio. Concu pour JOUER et pour etre lance par AKA-IDE (bouton Tester).
+
+  aka-love-sim "chemin/vers/le/jeu"     (dossier contenant main.lua / conf.lua)
+
+Le jeu tourne jusqu'a la fermeture de la fenetre (ou Echap) ; --frames est ignore ici.
+Sous Windows, garder SDL2.dll a cote de aka-love-sim.exe.
+
+Commandes clavier :
+  fleches        = D-Pad (haut/bas/gauche/droite)
+  I J K L        = stick analogique (haut/gauche/bas/droite)
+  Espace/Entree  = A      X = B      C = C      V = D
+  Maj gauche     = L1     Maj droite = R1       M = MENU
+  Echap          = quitter
+
+Sources et documentation : depot AKA-Love.

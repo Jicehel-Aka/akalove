@@ -99,16 +99,17 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-pil
+          sudo apt-get install -y python3-pil libsdl2-dev
           cmake -S sim -B build-sim -DCMAKE_BUILD_TYPE=Release
           cmake --build build-sim -j"$(nproc)"
+          test -f build-sim/aka-love-sim   # le sim fenêtré (SDL2) DOIT être bâti
           python3 tests/run_tests.py
 
       - name: Package (Linux)
         if: runner.os == 'Linux'
         run: |
           mkdir -p package/games
-          cp build-sim/akalove-sim sim/LISEZMOI.txt package/
+          cp build-sim/akalove-sim build-sim/aka-love-sim sim/LISEZMOI.txt package/
           cp -r tests/games/hello tests/games/runner examples/attrape package/games/
           (cd package && zip -r ../aka-love-sim-${{ matrix.name }}.zip .)
 
@@ -119,7 +120,7 @@ jobs:
         uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
-          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja zip
+          install: mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-SDL2 zip
 
       - name: Build and smoke test (Windows)
         if: runner.os == 'Windows'
@@ -127,6 +128,8 @@ jobs:
         run: |
           cmake -S sim -B build-sim -G Ninja -DCMAKE_BUILD_TYPE=Release
           cmake --build build-sim
+          test -f build-sim/aka-love-sim.exe   # le sim fenêtré (SDL2) DOIT être bâti
+          # Fumée : seul le sim SANS fenêtre est testable sur un runner sans écran.
           ./build-sim/akalove-sim.exe tests/games/hello --frames 5 | tee smoke.txt
           grep -q "Bonjour, tout fonctionne" smoke.txt
 
@@ -135,7 +138,9 @@ jobs:
         shell: msys2 {0}
         run: |
           mkdir -p package/games
-          cp build-sim/akalove-sim.exe sim/LISEZMOI.txt package/
+          cp build-sim/akalove-sim.exe build-sim/aka-love-sim.exe sim/LISEZMOI.txt package/
+          # SDL2 est livré en DLL : on la joint à côté du binaire fenêtré.
+          cp /mingw64/bin/SDL2.dll package/
           cp -r tests/games/hello tests/games/runner examples/attrape package/games/
           (cd package && zip -r ../aka-love-sim-${{ matrix.name }}.zip .)
 
