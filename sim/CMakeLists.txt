@@ -44,12 +44,18 @@ if(SDL2_FOUND)
     ${AK}/runtime.cpp ${AK}/love_gfx.cpp ${AK}/bind_graphics.cpp ${AK}/bind_system.cpp ${AK}/bind_fs.cpp ${AK}/game_select.cpp ${AK}/splash.cpp ${AK}/image_decode.cpp ${AK}/stb_impl.cpp ${AK}/bind_audio.cpp ${AK}/transfer.cpp
     ${AK}/embedded_lua.cpp)
   target_include_directories(aka-love-sim PRIVATE ${AK} ${AK}/include ${CMAKE_CURRENT_LIST_DIR}
-                                                    ${ROOT}/components/aka_font/include ${SDL2_INCLUDE_DIRS})
+                                                    ${ROOT}/components/aka_font/include)
   # -Werror retiré ici : les en-têtes SDL2 déclenchent des avertissements hors de notre contrôle.
   target_compile_options(aka-love-sim PRIVATE -Wall -Wextra -fno-exceptions -fno-rtti)
-  target_link_libraries(aka-love-sim PRIVATE lua51 m ${SDL2_LIBRARIES})
+  # On lie UNIQUEMENT la cible moderne SDL2::SDL2 (le coeur). On évite la variable
+  # ${SDL2_LIBRARIES} qui, sous MinGW, tire SDL2main : son WinMain appelle SDL_main,
+  # qu'on n'a pas (notre main() est dans main_sim.cpp, SDL_MAIN_HANDLED dans hal_sdl.cpp)
+  # -> sinon « undefined reference to SDL_main » à l'édition de liens Windows.
   if(TARGET SDL2::SDL2)
-    target_link_libraries(aka-love-sim PRIVATE SDL2::SDL2)
+    target_link_libraries(aka-love-sim PRIVATE lua51 m SDL2::SDL2)
+  else()
+    target_include_directories(aka-love-sim PRIVATE ${SDL2_INCLUDE_DIRS})
+    target_link_libraries(aka-love-sim PRIVATE lua51 m ${SDL2_LIBRARIES})
   endif()
   if(MINGW)   # SDL2 livré en DLL à côté ; on fige seulement le runtime GCC
     target_link_options(aka-love-sim PRIVATE -static-libgcc -static-libstdc++)
