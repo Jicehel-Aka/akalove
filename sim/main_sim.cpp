@@ -41,11 +41,6 @@ static bool button_from_name(const char* n, hal::Button& b) {
 }
 
 int main(int argc, char** argv) {
-    if (argc < 2) {
-        fprintf(stderr, "usage : %s <dossier-du-jeu> [--frames N] [--shot f.ppm] [--shot-frame K] [--press b:de:a] "
-                        "[--save dir] [--watchdog-ms N] [--realtime]\n", argv[0]);
-        return 2;
-    }
     sim::Config& cfg = sim::config();
     GameInfo g;
     memset(&g, 0, sizeof g);
@@ -53,7 +48,13 @@ int main(int argc, char** argv) {
     const char* home = nullptr;
     bool no_splash = false, receive_screen = false, use_menu = false;
     uint32_t transfer_ms = 0;
-    if (!strcmp(argv[1], "--home") && argc >= 3) {
+    if (argc < 2) {
+        // Lancé sans argument (ex. double-clic sur akalove-play) : on ouvre le menu des jeux du
+        // dossier courant (games/ à côté de l'exécutable). En jeu, Échap revient au menu.
+        home = ".";
+        use_menu = true;
+        select_game(home, g);
+    } else if (!strcmp(argv[1], "--home") && argc >= 3) {
         home = argv[2];
         select_game(home, g);
         first_opt = 3;
