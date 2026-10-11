@@ -52,7 +52,8 @@ static const uint32_t kFrameMs = 33;   // ~30 fps, comme la console
 // ── Entrées ──────────────────────────────────────────────────────────────────
 static uint32_t g_buttons = 0;
 static float    g_lx = 0.f, g_ly = 0.f;
-static bool     g_quit = false;
+static bool     g_quit = false;      // quitter l'appli (fermeture de la fenêtre)
+static bool     g_to_menu = false;   // revenir au menu de sélection (touche Échap)
 
 // ── Audio (mixeur logiciel 4 voies, WAV 16 bits) ─────────────────────────────
 struct Track {
@@ -151,8 +152,8 @@ void poll_input()
 {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-        if (e.type == SDL_QUIT) g_quit = true;
-        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) g_quit = true;
+        if (e.type == SDL_QUIT) g_quit = true;                                      // fermer la fenêtre = quitter
+        if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) g_to_menu = true;  // Échap = retour au menu
     }
 
     const Uint8* k = SDL_GetKeyboardState(nullptr);
@@ -167,7 +168,9 @@ void poll_input()
     set_btn(m, B_D,     k[SDL_SCANCODE_V]);
     set_btn(m, B_L1,    k[SDL_SCANCODE_LSHIFT]);
     set_btn(m, B_R1,    k[SDL_SCANCODE_RSHIFT]);
-    set_btn(m, B_MENU,  k[SDL_SCANCODE_M]);
+    // Le « bouton MENU » n'est PAS mappé sur une lettre (SDL lit la POSITION physique : le M QWERTY
+    // tombe sur « , » en AZERTY, source de confusion). Le retour au menu se fait par Échap, intercepté
+    // par le runtime (quit_to_menu), donc indépendamment du code Lua du jeu.
     g_buttons = m;
 
     g_lx = (k[SDL_SCANCODE_L] ? 1.f : 0.f) - (k[SDL_SCANCODE_J] ? 1.f : 0.f);
@@ -176,7 +179,11 @@ void poll_input()
 
 uint32_t buttons() { return g_buttons; }
 void axes(float& lx, float& ly) { lx = g_lx; ly = g_ly; }
-bool quit_requested() { return g_quit; }   // mode fenêtré : fermeture/Échap (max_frames ignoré)
+// Le runtime s'arrête si on quitte l'appli OU si on demande le menu — ainsi le retour au menu ne
+// dépend pas du code du jeu (max_frames ignoré en mode fenêtré).
+bool quit_requested() { return g_quit || g_to_menu; }
+bool quit_to_menu() { return g_to_menu && !g_quit; }   // la session s'est terminée pour revenir au menu
+void clear_quit_to_menu() { g_to_menu = false; }
 
 [[noreturn]] void return_to_loader()
 {

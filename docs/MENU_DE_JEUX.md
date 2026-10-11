@@ -71,7 +71,9 @@ Pour envoyer un jeu **sans retirer la carte SD**, voir `docs/PROTOCOLE_TRANSFERT
 - Code : `components/akalove/game_menu.{h,cpp}` — ne dépend que de `hal::` (entrées/temps) et `gfx::`
   (texte), donc le **même code** tourne sur la console (`hal_aka`) et sur les simulateurs PC
   (`hal_sim`, `hal_sdl`).
-- Essayer au clavier : `akalove-play --home <dossier AKA_Love> --menu` (flèches + Entrée/Espace, Échap = MENU).
+- Essayer au clavier : `akalove-play --home <dossier AKA_Love> --menu` (flèches pour choisir, Entrée/Espace
+  pour lancer). En partie, **Échap** revient au menu — c'est le lanceur qui l'intercepte (`hal::quit_to_menu`),
+  donc indépendamment du code Lua du jeu ; fermer la fenêtre quitte. Depuis le menu, Échap quitte.
 - Tester en scriptant les entrées (simulateur sans fenêtre) :
 
   ```
