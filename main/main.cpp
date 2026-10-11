@@ -5,6 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "gb_core.h"   // gb_core, MOUNT_POINT
+#include "game_menu.h"
 #include "game_select.h"
 #include "hal.h"
 #include "runtime.h"
@@ -30,13 +31,17 @@ static void game_task(void*) {
     // un vrai lanceur/menu (phase P6), c'est le point d'entrée le plus simple à ce stade.
     if (hal::buttons() & (1u << hal::B_D)) transfer_receive_screen(AKALOVE_HOME, nullptr);
     show_splash(AKALOVE_HOME);   // AKA_Love/Picture.png (sinon screen.bmp), 1,5 s ou premier appui
-    GameInfo g = {};
-    select_game(AKALOVE_HOME, g);
-    printf("[AKA-Love] jeu : %s\n", g.dir);
-    Exit e;
-    do {
-        e = runtime_play(g);
-    } while (e == Exit::Restart);
+    // Lanceur de jeux (P6) : le menu liste AKA_Love/games/, retient le choix dans game.txt
+    // et relance le menu quand un jeu se termine. MENU dans le menu = retour au loader.
+    for (;;) {
+        GameInfo g = {};
+        if (!choose_game(AKALOVE_HOME, g)) break;
+        printf("[AKA-Love] jeu : %s\n", g.dir);
+        Exit e;
+        do {
+            e = runtime_play(g);
+        } while (e == Exit::Restart);
+    }
     // Pile réellement utilisée (à surveiller pendant la mise au point)
     printf("[AKA-Love] pile GameTask : %u octets libres au minimum\n",
            (unsigned)(uxTaskGetStackHighWaterMark(nullptr) * sizeof(StackType_t)));

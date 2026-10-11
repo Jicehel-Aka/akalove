@@ -9,6 +9,7 @@
 //   --no-splash         avec --home : ne pas afficher Picture.png / screen.bmp au démarrage
 //   --transfer-window-ms N   écoute le protocole de transfert (AKAT) sur l'entrée standard
 //                            pendant N ms avant de lancer le jeu (0 = désactivé, défaut)
+//   --menu                   affiche le lanceur de jeux (P6) avant de lancer (--home requis)
 //   --receive-screen         lance l'écran interactif "Recevoir un code" (--home requis) au lieu
 //                            du jeu ; se termine sur --frames écoulées ou bouton menu simulé
 //   --realtime          horloge réelle, 30 fps (sinon horloge virtuelle déterministe)
@@ -16,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "game_menu.h"
 #include "game_select.h"
 #include "hal.h"
 #include "runtime.h"
@@ -49,7 +51,7 @@ int main(int argc, char** argv) {
     memset(&g, 0, sizeof g);
     int first_opt = 2;
     const char* home = nullptr;
-    bool no_splash = false, receive_screen = false;
+    bool no_splash = false, receive_screen = false, use_menu = false;
     uint32_t transfer_ms = 0;
     if (!strcmp(argv[1], "--home") && argc >= 3) {
         home = argv[2];
@@ -74,6 +76,7 @@ int main(int argc, char** argv) {
         else if (!strcmp(argv[i], "--no-splash")) no_splash = true;
         else if (!strcmp(argv[i], "--transfer-window-ms") && i + 1 < argc) transfer_ms = (uint32_t)atoi(argv[++i]);
         else if (!strcmp(argv[i], "--receive-screen")) receive_screen = true;
+        else if (!strcmp(argv[i], "--menu")) use_menu = true;
         else if (!strcmp(argv[i], "--press") && i + 1 < argc) {
             char name[16];
             int from, to;
@@ -101,6 +104,11 @@ int main(int argc, char** argv) {
     }
     if (transfer_ms && home) transfer_listen(transfer_ms, home, nullptr);   // --home requis (racine "games/")
     if (home && !no_splash) show_splash(home);   // comme la console : Picture.png (ou screen.bmp) avant le jeu
+    if (use_menu && home) {                       // lanceur de jeux (P6), comme la console
+        GameInfo mg = {};
+        if (!choose_game(home, mg)) return 0;     // MENU : annulé
+        g = mg;
+    }
     Exit e;
     do {
         e = runtime_play(g);

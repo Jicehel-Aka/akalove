@@ -17,7 +17,7 @@ target_compile_options(lua51 PRIVATE -w)
 
 add_executable(akalove-sim
   main_sim.cpp hal_sim.cpp
-  ${AK}/runtime.cpp ${AK}/love_gfx.cpp ${AK}/bind_graphics.cpp ${AK}/bind_system.cpp ${AK}/bind_fs.cpp ${AK}/game_select.cpp ${AK}/splash.cpp ${AK}/image_decode.cpp ${AK}/stb_impl.cpp ${AK}/bind_audio.cpp ${AK}/transfer.cpp
+  ${AK}/runtime.cpp ${AK}/love_gfx.cpp ${AK}/bind_graphics.cpp ${AK}/bind_system.cpp ${AK}/bind_fs.cpp ${AK}/game_select.cpp ${AK}/game_menu.cpp ${AK}/splash.cpp ${AK}/image_decode.cpp ${AK}/stb_impl.cpp ${AK}/bind_audio.cpp ${AK}/transfer.cpp
   ${AK}/embedded_lua.cpp)
 target_include_directories(akalove-sim PRIVATE ${AK} ${AK}/include ${CMAKE_CURRENT_LIST_DIR}
                                                   ${ROOT}/components/aka_font/include)
@@ -41,7 +41,7 @@ find_package(SDL2 QUIET)
 if(SDL2_FOUND)
   add_executable(akalove-play
     main_sim.cpp hal_sdl.cpp
-    ${AK}/runtime.cpp ${AK}/love_gfx.cpp ${AK}/bind_graphics.cpp ${AK}/bind_system.cpp ${AK}/bind_fs.cpp ${AK}/game_select.cpp ${AK}/splash.cpp ${AK}/image_decode.cpp ${AK}/stb_impl.cpp ${AK}/bind_audio.cpp ${AK}/transfer.cpp
+    ${AK}/runtime.cpp ${AK}/love_gfx.cpp ${AK}/bind_graphics.cpp ${AK}/bind_system.cpp ${AK}/bind_fs.cpp ${AK}/game_select.cpp ${AK}/game_menu.cpp ${AK}/splash.cpp ${AK}/image_decode.cpp ${AK}/stb_impl.cpp ${AK}/bind_audio.cpp ${AK}/transfer.cpp
     ${AK}/embedded_lua.cpp)
   target_include_directories(akalove-play PRIVATE ${AK} ${AK}/include ${CMAKE_CURRENT_LIST_DIR}
                                                     ${ROOT}/components/aka_font/include)
