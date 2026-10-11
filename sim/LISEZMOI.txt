@@ -16,7 +16,14 @@ AKA-Love — simulateur PC AVEC fenetre + son (akalove-play, SDL2)
 Meme runtime, mais affiche une fenetre 640x480 (ecran 320x240 BGR565 x2) et joue les
 4 voies audio. Concu pour JOUER et pour etre lance par AKA-IDE (bouton Tester).
 
+Lancer un seul jeu :
   akalove-play "chemin/vers/le/jeu"     (dossier contenant main.lua / conf.lua)
+
+Lancer le MENU de jeux (comme sur la console) pour changer de jeu a la volee :
+  akalove-play --home "dossier_AKA_Love" --menu
+  (dossier_AKA_Love contient games/<jeux> ; depuis le paquet de la release : --home . --menu)
+  Dans le menu : Haut/Bas choisir, A (Espace) lancer. Pendant une partie, le bouton
+  MENU (touche M) revient au menu de selection. Echap (ou fermer la fenetre) quitte.
 
 Le jeu tourne jusqu'a la fermeture de la fenetre (ou Echap) ; --frames est ignore ici.
 Sous Windows, garder SDL2.dll a cote de akalove-play.exe.
@@ -25,7 +32,7 @@ Commandes clavier :
   fleches        = D-Pad (haut/bas/gauche/droite)
   I J K L        = stick analogique (haut/gauche/bas/droite)
   Espace/Entree  = A      X = B      C = C      V = D
-  Maj gauche     = L1     Maj droite = R1       M = MENU
-  Echap          = quitter
+  Maj gauche     = L1     Maj droite = R1       M = MENU (retour au menu de jeux)
+  Echap          = quitter le simulateur
 
 Sources et documentation : depot AKA-Love.

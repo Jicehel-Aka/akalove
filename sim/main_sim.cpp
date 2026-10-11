@@ -104,12 +104,19 @@ int main(int argc, char** argv) {
     }
     if (transfer_ms && home) transfer_listen(transfer_ms, home, nullptr);   // --home requis (racine "games/")
     if (home && !no_splash) show_splash(home);   // comme la console : Picture.png (ou screen.bmp) avant le jeu
-    if (use_menu && home) {                       // lanceur de jeux (P6), comme la console
-        GameInfo mg = {};
-        if (!choose_game(home, mg)) return 0;     // MENU : annulé
-        g = mg;
+    if (use_menu && home) {
+        // Lanceur de jeux (P6), comme la console : menu -> jeu -> menu. Quand un jeu se termine
+        // (love.event.quit / MENU dans le jeu), on revient au menu ; MENU dans le menu quitte.
+        for (;;) {
+            GameInfo mg = {};
+            if (!choose_game(home, mg)) return 0;
+            Exit e;
+            do {
+                e = runtime_play(mg);
+            } while (e == Exit::Restart);
+        }
     }
-    Exit e;
+    Exit e;                                        // mode direct (un seul jeu, sans menu)
     do {
         e = runtime_play(g);
     } while (e == Exit::Restart);

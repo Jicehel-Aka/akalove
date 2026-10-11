@@ -76,6 +76,10 @@ void init() {
         g_loop[i] = false;
         g_track_path[i][0] = 0;
     }
+    // Volume maître plein par défaut (comme Love2D : volume 1.0, et comme le simulateur PC). Sans ça il
+    // reste à 0 (gb_audio_player::_u8_master_volume{0}) et aucun jeu n'a de son tant qu'il n'appelle pas
+    // love.audio.setVolume() — ce que la plupart ne font pas.
+    g_audio.set_master_volume(255);
     poll_input();
 }
 
@@ -86,7 +90,10 @@ uint16_t pack565(uint8_t r, uint8_t g, uint8_t b) { return lcd_color_rgb(r, g, b
 // Attend la fin du transfert DMA précédent et la synchro verticale, puis lance le suivant (ZERO_BUFFER)
 void present() {
     g_gfx.update();
-    audio_poll();
+    audio_poll();      // relance les pistes bouclées qui se sont arrêtées
+    g_audio.pool();    // PRODUCTEUR du tampon I2S : remplit les buffers libres. DOIT tourner chaque frame,
+                       // sinon le tampon reste vide et rien ne sort (appelé ici, dans GameTask, pour ne pas
+                       // partager les gb_audio_track_wav avec une autre tâche).
 }
 
 uint32_t micros() { return (uint32_t)g_core.get_micros(); }
