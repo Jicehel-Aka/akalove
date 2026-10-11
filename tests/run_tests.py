@@ -223,6 +223,13 @@ os.makedirs(os.path.join(empty_home, 'games'))
 p = subprocess.run(RUNNER + [SIM, '--home', empty_home, '--no-splash', '--menu', '--frames', '90'], capture_output=True, text=True, timeout=60)
 check('menu : games/ vide -> pas de plantage, rien lancé', p.returncode == 0 and 'Bonjour' not in p.stdout, p.stdout + p.stderr)
 
+print('== exemple pong : raquettes sprites, rebond sonore, clavier')
+r = run('pong', frames=80, shot_frame=60, presses=('a:2:3', 'down:10:40'), root=EXAMPLES, name='pong')
+check('pong : se charge et tourne (code 0, aucune erreur Lua)', r.rc == 0 and 'error' not in r.err.lower(), r.err)
+# À la frame 60, la balle a été servie : raquettes (sprites), balle et filet -> des pixels clairs.
+clairs = count(r.img, (0, 0, 320, 240), lambda c: min(c) > 200) if r.img else 0
+check('pong : rendu non vide (sprites/balle/filet dessinés)', clairs > 200, 'pixels clairs=' + str(clairs))
+
 print('== écran de démarrage : Picture.png (sinon screen.bmp), mise à l\'échelle, alpha, saut au premier appui')
 import io
 def png(img, fmt='PNG'):

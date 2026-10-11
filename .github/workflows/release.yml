@@ -65,7 +65,7 @@ jobs:
           mkdir -p out/AKA_Love/games out/AKA
           cp -r sdcard_files/AKA_Love/. out/AKA_Love/
           cp -r sdcard_files/AKA/. out/AKA/
-          cp -r tests/games/hello tests/games/runner examples/attrape out/AKA_Love/games/
+          cp -r tests/games/hello tests/games/runner examples/attrape examples/pong out/AKA_Love/games/
           printf 'hello\n' > out/AKA_Love/game.txt
           cp build/akalove.bin out/AKA_Love/firmware.bin
           cp build/akalove.bin firmware.bin
@@ -110,7 +110,7 @@ jobs:
         run: |
           mkdir -p package/games
           cp build-sim/akalove-sim build-sim/akalove-play sim/LISEZMOI.txt package/
-          cp -r tests/games/hello tests/games/runner examples/attrape package/games/
+          cp -r tests/games/hello tests/games/runner examples/attrape examples/pong package/games/
           (cd package && zip -r ../aka-love-sim-${{ matrix.name }}.zip .)
 
       # --- Windows : MinGW-w64 via MSYS2 (meme compilateur GCC que Linux, executable statique :
@@ -141,7 +141,7 @@ jobs:
           cp build-sim/akalove-sim.exe build-sim/akalove-play.exe sim/LISEZMOI.txt package/
           # SDL2 est livré en DLL : on la joint à côté du binaire fenêtré.
           cp /mingw64/bin/SDL2.dll package/
-          cp -r tests/games/hello tests/games/runner examples/attrape package/games/
+          cp -r tests/games/hello tests/games/runner examples/attrape examples/pong package/games/
           (cd package && zip -r ../aka-love-sim-${{ matrix.name }}.zip .)
 
       - uses: actions/upload-artifact@v4
