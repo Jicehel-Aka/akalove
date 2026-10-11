@@ -1,4 +1,4 @@
-# AKA-Love — runtime (phases P0 + P1)
+# AKA-Love — runtime Love2D + lanceur de jeux (phases P0 → P6)
 
 Runtime **Love2D 11.5 sur Gamebuino AKA** : Lua 5.1.5 + API `love.*` en C++, projet ESP-IDF autonome.
 Ce dépôt suit le dossier de conception *AKA-Love v0.3* (PDF).
@@ -23,9 +23,9 @@ dit à quel langage le fichier appartient, chaque firmware range à son idée (A
 
 Deux façons de recevoir :
 - **Fenêtre passive** (1,5 s au démarrage) : silencieuse, écrase directement — pour un envoi automatisé.
-- **Écran interactif « Recevoir un code »** (bouton **D tenu au démarrage**, en attendant un vrai menu —
-  phase P6) : attend indéfiniment, crée les dossiers manquants, et **si le fichier existe déjà, demande
-  au joueur** — A : Écraser, D : Renommer, B : Annuler (30 s pour répondre, sinon annulé par sécurité).
+- **Écran interactif « Recevoir un code »** (bouton **D tenu au démarrage**) : attend indéfiniment, crée
+  les dossiers manquants, et **si le fichier existe déjà, demande au joueur** — A : Écraser, D : Renommer,
+  B : Annuler (30 s pour répondre, sinon annulé par sécurité).
 
 **Écrit et testé** sur le simulateur (18 contrôles rien que pour le transfert : dépôt, erreurs de somme
 de contrôle/chemin/langage, bruit sur la ligne, et les trois choix de l'écran interactif avec de vraies
@@ -53,8 +53,13 @@ point précis à valider en premier sur la carte.
 ## Premiers pas
 
 Guide pas à pas (PDF `AKA-Love_Guide_de_demarrage`) : mise en place, création du jeu `examples/attrape`, test sur PC,
-exécution sur l'AKA. En bref : le jeu lancé est celui nommé dans `AKA_Love/game.txt` sur la carte SD (défaut :
-`hello`) ; ses fichiers sont dans `AKA_Love/games/<nom>/`. Changer de jeu = éditer `game.txt`, sans recompiler.
+exécution sur l'AKA. Les jeux vivent dans `AKA_Love/games/<nom>/` sur la carte SD.
+
+**Changer de jeu — le menu (phase P6).** Au démarrage, AKA-Love affiche un **lanceur** qui liste les dossiers
+de `AKA_Love/games/` : D-Pad **haut/bas** pour choisir, **A** pour lancer, **MENU** pour revenir au loader.
+Le choix est mémorisé dans `AKA_Love/game.txt` (dernier jeu présélectionné au prochain démarrage) ; quand un
+jeu se termine, on revient au menu. On peut donc aussi changer de jeu en éditant `game.txt` à la main (une
+ligne = le nom du dossier), sans recompiler. Détails : `docs/MENU_DE_JEUX.md`.
 
 **Image de démarrage** : `AKA_Love/Picture.png` (l'image du catalogue web) est affichée 1,5 s au lancement, ou jusqu'au
 premier appui ; sans elle, `screen.bmp` (l'image du loader) ; sans aucune des deux, le jeu démarre tout de suite.
@@ -77,7 +82,7 @@ les captures de la console) à partir de `Picture.png`. Les deux fichiers sont f
 | `love.audio` : `newSource` (WAV, "static"/"stream" traités pareil), `play/stop/pause`, volume, boucle, `clone`, volume maître | **écrit et testé** (simulateur, sans son réel — juste l'état ; console : `gb_audio_player`/`gb_audio_track_wav`, 4 canaux, vérifié contre les vrais en-têtes) |
 | `love.filesystem.newFile` (API objet `open/read/write/close/eof/getSize`) | **écrit et testé** |
 | Souris virtuelle (`love.mouse`, `mousepressed/released`) : curseur piloté par le **stick analogique**, clic = bouton A | **écrit et testé** — approximation : pas de curseur système, le jeu doit dessiner lui-même un sprite à `love.mouse.getPosition()` |
-| Lanceur de jeux (`game.txt` sur la carte SD) | **écrit et testé** (simulateur) |
+| Lanceur de jeux (menu P6 : liste `games/`, D-Pad + A, mémorise dans `game.txt`) | **écrit et testé** (simulateur) |
 | Transfert USB (`tools/akatransfer.py`, protocole v1.1) | **écrit et testé** (simulateur) ; **jamais essayé sur un vrai port série** |
 | Simulateur PC **avec fenêtre + son** (SDL2, `akalove-play`) | **écrit et compilé** (Linux) — c'est le binaire que lance AKA-IDE pour jouer |
 | Canvas (`love.graphics.newCanvas`) | à faire — non requis par les jeux testés |
@@ -102,6 +107,7 @@ python3 tests/run_tests.py            # nécessite Python 3 + Pillow (--smoke : 
 Options du simulateur : `--frames N`, `--shot f.ppm --shot-frame K`, `--press bouton:de:a`
 (`up down left right a b c d l1 r1 menu`), `--save dir`, `--watchdog-ms N`, `--realtime`, `--home <dossier AKA_Love>` (lit `game.txt` comme la console).
 `--shot` accepte `.bmp` (s'ouvre partout) ou `.ppm`. `--no-splash` : avec `--home`, sans image de démarrage.
+`--menu` : avec `--home`, affiche d'abord le lanceur de jeux (P6) — pratique pour l'essayer au clavier (`akalove-play`) ou le tester en scriptant `--press`.
 
 ## CI et releases (GitHub Actions)
 

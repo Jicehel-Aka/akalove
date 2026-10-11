@@ -197,6 +197,32 @@ check('nom invalide refusé : retour à hello + message', 'Bonjour, tout fonctio
 p, home = run_home(b'inexistant\n')
 check('jeu introuvable : écran d\'erreur, pas de plantage', 'Cannot find main.lua' in p.stdout and p.returncode == 0, p.stdout + p.stderr)
 
+print('== menu de jeux (P6) : lanceur --menu')
+def read_game_txt(home):
+    try:
+        with open(os.path.join(home, 'game.txt'), 'rb') as f:
+            return f.read().decode('utf-8', 'replace').strip()
+    except OSError:
+        return None
+# games/ = {attrape, hello} triés -> [attrape, hello]. Présélection sur game.txt (hello, index 1).
+# UP depuis hello -> attrape (index 0), puis A : écrit game.txt et lance attrape.
+p, home = run_home(b'hello\n', frames=24, extra=['--no-splash', '--menu', '--press', 'up:2:3', '--press', 'a:5:6'])
+check('menu : UP puis A choisit attrape (game.txt réécrit)',
+      read_game_txt(home) == 'attrape' and os.path.isdir(os.path.join(home, 'save', 'attrape')) and 'Bonjour' not in p.stdout,
+      'game.txt=' + str(read_game_txt(home)) + '\n' + p.stdout + p.stderr)
+# A sans bouger : relance le jeu présélectionné (hello).
+p, home = run_home(b'hello\n', frames=24, extra=['--no-splash', '--menu', '--press', 'a:3:4'])
+check('menu : A sans bouger relance hello', read_game_txt(home) == 'hello' and 'Bonjour, tout fonctionne' in p.stdout, p.stdout + p.stderr)
+# MENU : annule, aucun jeu lancé, game.txt inchangé.
+p, home = run_home(b'hello\n', frames=24, extra=['--no-splash', '--menu', '--press', 'menu:2:3'])
+check('menu : MENU annule (aucun jeu lancé, game.txt inchangé)',
+      p.returncode == 0 and read_game_txt(home) == 'hello' and 'Bonjour' not in p.stdout, p.stdout + p.stderr)
+# games/ vide : message, pas de plantage, rien lancé.
+empty_home = tempfile.mkdtemp(prefix='akalove_home_')
+os.makedirs(os.path.join(empty_home, 'games'))
+p = subprocess.run(RUNNER + [SIM, '--home', empty_home, '--no-splash', '--menu', '--frames', '90'], capture_output=True, text=True, timeout=60)
+check('menu : games/ vide -> pas de plantage, rien lancé', p.returncode == 0 and 'Bonjour' not in p.stdout, p.stdout + p.stderr)
+
 print('== écran de démarrage : Picture.png (sinon screen.bmp), mise à l\'échelle, alpha, saut au premier appui')
 import io
 def png(img, fmt='PNG'):

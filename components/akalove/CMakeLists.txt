@@ -1,6 +1,6 @@
 # Composant AKA-Love (console). Le simulateur PC compile les mêmes sources avec sim/CMakeLists.txt.
 idf_component_register(
-    SRCS "hal_aka.cpp" "runtime.cpp" "love_gfx.cpp" "bind_graphics.cpp" "bind_system.cpp" "bind_fs.cpp" "game_select.cpp" "splash.cpp" "image_decode.cpp" "stb_impl.cpp" "bind_audio.cpp" "transfer.cpp"
+    SRCS "hal_aka.cpp" "runtime.cpp" "love_gfx.cpp" "bind_graphics.cpp" "bind_system.cpp" "bind_fs.cpp" "game_select.cpp" "game_menu.cpp" "splash.cpp" "image_decode.cpp" "stb_impl.cpp" "bind_audio.cpp" "transfer.cpp"
          "embedded_lua.cpp"
     INCLUDE_DIRS "include"
     PRIV_INCLUDE_DIRS "."
