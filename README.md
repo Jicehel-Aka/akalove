@@ -118,7 +118,7 @@ incrémentant la **version mineure** (`v0.1.0`, `v0.2.0`, ...). Rien n'est publi
 | Fichier de la Release | Contenu |
 |---|---|
 | `firmware.bin` | Binaire AKA seul (nom attendu par le loader) |
-| `aka-love-sdcard-vX.Y.0.zip` | Dossier `AKA_Love/` à copier à la racine de la carte SD : `firmware.bin` + `game.txt` + `games/hello`, `games/runner`, `games/attrape` (+ le contenu de `sdcard_files/AKA_Love/` s'il existe : `meta.json`, `Picture.png`...) |
+| `aka-love-sdcard-vX.Y.0.zip` | Dossier `AKA_Love/` à copier à la racine de la carte SD : `firmware.bin` + `game.txt` + `games/hello`, `games/runner`, `games/attrape`, `games/pong` (+ le contenu de `sdcard_files/AKA_Love/` s'il existe : `meta.json`, `Picture.png`...) |
 | `aka-love-sim-windows-x64-vX.Y.0.zip` | Simulateurs PC Windows : `akalove-sim.exe` (sans fenêtre) **et** `akalove-play.exe` (SDL2, fenêtre + son, avec `SDL2.dll`) + jeux d'exemple |
 | `aka-love-sim-linux-x64-vX.Y.0.zip` | Simulateurs PC Linux : `akalove-sim` (sans fenêtre) **et** `akalove-play` (SDL2, fenêtre + son) + jeux d'exemple |
 
@@ -197,6 +197,7 @@ components/akalove/    splash.cpp, image_decode.cpp, third_party/stb_image.h (PN
                        hal_aka.cpp (console, squelette) · include/hal.h (HAL v2)
 sim/                   hal_sim.cpp + main_sim.cpp : simulateur sans fenêtre (PPM), tests
 examples/attrape/      jeu d'exemple complet (utilisé par le guide et les tests)
+examples/pong/         Pong : raquettes en sprites, rebond sonore (WAV), clavier/D-Pad
 tests/                 games/* (petits jeux de test) · run_tests.py · screenshots.png
 ```
 
