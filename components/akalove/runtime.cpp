@@ -92,6 +92,14 @@ static lua_State* new_vm() {
     if (!L) return nullptr;
     luaL_openlibs(L);
 
+    // Fluidité : on étale le ramasse-miettes pour éviter les à-coups réguliers (un gros cycle GC
+    // tous les N frames se voit à 30 fps). GCSETPAUSE 100 = relancer un cycle dès que la mémoire
+    // a doublé de moins (cycles plus petits) ; un petit GCSTEP par frame (voir la boucle) fait
+    // avancer le collecteur incrémental régulièrement plutôt qu'en une longue pause. Le GC
+    // automatique reste actif en filet de sécurité (pas de risque de fuite mémoire).
+    lua_gc(L, LUA_GCSETPAUSE, 100);
+    lua_gc(L, LUA_GCSETSTEPMUL, 400);
+
     lua_pushcfunction(L, l_print);
     lua_setglobal(L, "print");
 
@@ -278,6 +286,7 @@ Exit runtime_play(const GameInfo& g) {
                 break;
             }
             lua_pop(L, 1);
+            lua_gc(L, LUA_GCSTEP, 1);   // un petit incrément de GC par frame : travail étalé, pas d'à-coup
         }
     } else {
         result = exit_from_value(L, -1);   // love.run surchargé : a déjà tourné jusqu'à la sortie
