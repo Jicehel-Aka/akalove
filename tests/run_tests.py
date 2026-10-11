@@ -230,6 +230,13 @@ check('pong : se charge et tourne (code 0, aucune erreur Lua)', r.rc == 0 and 'e
 clairs = count(r.img, (0, 0, 320, 240), lambda c: min(c) > 200) if r.img else 0
 check('pong : rendu non vide (sprites/balle/filet dessinés)', clairs > 200, 'pixels clairs=' + str(clairs))
 
+print('== exemple runner (version complète : fond, sons, musique)')
+r = run('runner', frames=60, shot_frame=30, presses=('a:10:12',), root=EXAMPLES, name='runner_ex')
+check('runner (exemple) : se charge avec assets, aucune erreur Lua', r.rc == 0 and 'error' not in r.err.lower(), r.err)
+check('runner (exemple) : fond png dessiné (pas le repli uni)',
+      bool(r.img) and not near(r.img.getpixel((10, 10)), (26, 26, 77), 10),
+      r.img.getpixel((10, 10)) if r.img else None)
+
 print('== écran de démarrage : Picture.png (sinon screen.bmp), mise à l\'échelle, alpha, saut au premier appui')
 import io
 def png(img, fmt='PNG'):

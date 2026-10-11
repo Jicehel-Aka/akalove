@@ -121,6 +121,7 @@ incrémentant la **version mineure** (`v0.1.0`, `v0.2.0`, ...). Rien n'est publi
 | `aka-love-sdcard-vX.Y.0.zip` | Dossier `AKA_Love/` à copier à la racine de la carte SD : `firmware.bin` + `game.txt` + `games/hello`, `games/runner`, `games/attrape`, `games/pong`, `games/cassebriques` (+ le contenu de `sdcard_files/AKA_Love/` s'il existe : `meta.json`, `Picture.png`...) |
 | `aka-love-sim-windows-x64-vX.Y.0.zip` | Simulateurs PC Windows : `akalove-sim.exe` (sans fenêtre) **et** `akalove-play.exe` (SDL2, fenêtre + son, avec `SDL2.dll`) + jeux d'exemple (`games/`) + `docs/` + `README.md` |
 | `aka-love-sim-linux-x64-vX.Y.0.zip` | Simulateurs PC Linux : `akalove-sim` (sans fenêtre) **et** `akalove-play` (SDL2, fenêtre + son) + jeux d'exemple (`games/`) + `docs/` + `README.md` |
+| `aka-love-tests-vX.Y.0.zip` | Suite de test : `tests/` (run_tests.py + les 20 jeux de test). GitHub joint aussi une archive « Source code » complète du dépôt. |
 
 - **Prérequis** : la bibliothèque `gamebuino` doit être dans `components/gamebuino` du dépôt (comme dans les autres
   projets AKA). Le workflow applique lui-même `tools/fix_gamebuino_case.py` avant de compiler.
@@ -196,7 +197,8 @@ components/akalove/    splash.cpp, image_decode.cpp, third_party/stb_image.h (PN
                        font6x12.h (généré : tools/gen_font.py — police PROVISOIRE, ASCII seulement)
                        hal_aka.cpp (console, squelette) · include/hal.h (HAL v2)
 sim/                   hal_sim.cpp + main_sim.cpp : simulateur sans fenêtre (PPM), tests
-examples/attrape/      jeu d'exemple complet (utilisé par le guide et les tests)
+examples/attrape/      jeu d'exemple complet (utilisé par le guide et les tests) — avec sons
+examples/runner/       Infinite Runner « complet » : fond, sons de saut/mort, musique en boucle
 examples/pong/         Pong : raquettes en sprites, rebond sonore (WAV), clavier/D-Pad
 examples/cassebriques/ Casse-briques : sons, police, sauvegarde du record
 tests/                 games/* (petits jeux de test) · run_tests.py · screenshots.png
