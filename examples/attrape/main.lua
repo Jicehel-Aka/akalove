@@ -4,6 +4,13 @@
 
 local W, H = 320, 240
 local barre, carres, score, vies, meilleur, temps, delai, fini
+local sonAttrape, sonPerdu
+
+local function charge(chemin)   -- si le son manque, on continue sans
+  local ok, src = pcall(love.audio.newSource, chemin, "static")
+  return ok and src or nil
+end
+local function joue(son) if son then son:stop(); son:play() end end
 
 local function lire_meilleur()
   local texte = love.filesystem.read("meilleur.txt")   -- nil si le fichier n'existe pas encore
@@ -17,6 +24,8 @@ end
 
 function love.load()
   love.graphics.setBackgroundColor(0.08, 0.10, 0.20)
+  sonAttrape = charge("sons/attrape.wav")
+  sonPerdu   = charge("sons/perdu.wav")
   meilleur = lire_meilleur()
   nouvelle_partie()
 end
@@ -49,9 +58,11 @@ function love.update(dt)
                and c.x + c.t >= barre.x and c.x <= barre.x + barre.w
     if touche then
       score = score + 1
+      joue(sonAttrape)
       table.remove(carres, i)
     elseif c.y > H then
       vies = vies - 1
+      joue(sonPerdu)
       table.remove(carres, i)
     end
   end
