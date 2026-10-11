@@ -11,15 +11,15 @@ Options : --frames N  --shot f.ppm  --shot-frame K  --press bouton:de:a  --save 
 Boutons : up down left right a b c d l1 r1 menu
 
 
-AKA-Love — simulateur PC AVEC fenetre + son (aka-love-sim, SDL2)
+AKA-Love — simulateur PC AVEC fenetre + son (akalove-play, SDL2)
 
 Meme runtime, mais affiche une fenetre 640x480 (ecran 320x240 BGR565 x2) et joue les
 4 voies audio. Concu pour JOUER et pour etre lance par AKA-IDE (bouton Tester).
 
-  aka-love-sim "chemin/vers/le/jeu"     (dossier contenant main.lua / conf.lua)
+  akalove-play "chemin/vers/le/jeu"     (dossier contenant main.lua / conf.lua)
 
 Le jeu tourne jusqu'a la fermeture de la fenetre (ou Echap) ; --frames est ignore ici.
-Sous Windows, garder SDL2.dll a cote de aka-love-sim.exe.
+Sous Windows, garder SDL2.dll a cote de akalove-play.exe.
 
 Commandes clavier :
   fleches        = D-Pad (haut/bas/gauche/droite)
