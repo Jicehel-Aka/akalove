@@ -22,17 +22,21 @@ Lancer un seul jeu :
 Lancer le MENU de jeux (comme sur la console) pour changer de jeu a la volee :
   akalove-play --home "dossier_AKA_Love" --menu
   (dossier_AKA_Love contient games/<jeux> ; depuis le paquet de la release : --home . --menu)
-  Dans le menu : Haut/Bas choisir, A (Espace) lancer. Pendant une partie, le bouton
-  MENU (touche M) revient au menu de selection. Echap (ou fermer la fenetre) quitte.
+  Dans le menu : Haut/Bas choisir, A (Espace) lancer, Echap quitte le simulateur.
+  Pendant une partie : Echap revient au menu de selection (quel que soit le jeu) ;
+  fermer la fenetre quitte le simulateur.
 
-Le jeu tourne jusqu'a la fermeture de la fenetre (ou Echap) ; --frames est ignore ici.
 Sous Windows, garder SDL2.dll a cote de akalove-play.exe.
 
 Commandes clavier :
   fleches        = D-Pad (haut/bas/gauche/droite)
   I J K L        = stick analogique (haut/gauche/bas/droite)
   Espace/Entree  = A      X = B      C = C      V = D
-  Maj gauche     = L1     Maj droite = R1       M = MENU (retour au menu de jeux)
-  Echap          = quitter le simulateur
+  Maj gauche     = L1     Maj droite = R1
+  Echap          = retour au menu (en partie) / quitter (depuis le menu)
+
+Remarque : le retour au menu par Echap est gere par le lanceur, pas par le jeu ;
+il marche donc avec tous les jeux. (Les touches lettres suivent la POSITION
+physique facon QWERTY ; les fleches, elles, sont identiques sur tous les claviers.)
 
 Sources et documentation : depot AKA-Love.

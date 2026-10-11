@@ -105,8 +105,9 @@ int main(int argc, char** argv) {
     if (transfer_ms && home) transfer_listen(transfer_ms, home, nullptr);   // --home requis (racine "games/")
     if (home && !no_splash) show_splash(home);   // comme la console : Picture.png (ou screen.bmp) avant le jeu
     if (use_menu && home) {
-        // Lanceur de jeux (P6), comme la console : menu -> jeu -> menu. Quand un jeu se termine
-        // (love.event.quit / MENU dans le jeu), on revient au menu ; MENU dans le menu quitte.
+        // Lanceur de jeux (P6), comme la console : menu -> jeu -> menu. Échap pendant une partie
+        // ramène au menu (indépendamment du code du jeu) ; fermer la fenêtre quitte l'appli ;
+        // Échap dans le menu quitte aussi.
         for (;;) {
             GameInfo mg = {};
             if (!choose_game(home, mg)) return 0;
@@ -114,6 +115,8 @@ int main(int argc, char** argv) {
             do {
                 e = runtime_play(mg);
             } while (e == Exit::Restart);
+            if (!hal::quit_to_menu()) return 0;   // fenêtre fermée -> quitter ; sinon c'était Échap
+            hal::clear_quit_to_menu();            // on réarme et on revient au menu
         }
     }
     Exit e;                                        // mode direct (un seul jeu, sans menu)

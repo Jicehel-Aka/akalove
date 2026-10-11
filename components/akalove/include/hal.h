@@ -31,6 +31,12 @@ void poll_input();        // lit le matériel UNE fois ; appelé par love.event.
 uint32_t buttons();       // masque de bits (1 << Button) tel que lu par le dernier poll_input()
 void axes(float& lx, float& ly);   // stick analogique -1..1 (ly > 0 = vers le bas, comme Love)
 bool quit_requested();    // console : RUN+MENU maintenus 500 ms ; simulateur : fin de la session
+// Le simulateur fenêtré distingue « revenir au menu » (Échap) de « quitter l'appli » (fermer la fenêtre) :
+// quit_requested() devient vrai dans les deux cas (le runtime s'arrête sans que le jeu ait à coopérer),
+// quit_to_menu() dit si c'était pour revenir au menu, clear_quit_to_menu() réarme avant de rouvrir le menu.
+// Console et simulateur sans fenêtre : quit_to_menu() = false, clear_quit_to_menu() ne fait rien.
+bool quit_to_menu();
+void clear_quit_to_menu();
 [[noreturn]] void return_to_loader();   // console : redémarre sur le loader AKA ; simulateur : quitte
 
 // --- Série / journal -------------------------------------------------------------------------

@@ -259,6 +259,8 @@ void axes(float& lx, float& ly) {   // le simulateur n'a pas de stick : la croix
     ly = (float)(((b >> B_DOWN) & 1) - ((b >> B_UP) & 1));
 }
 bool quit_requested() { return g_cfg.max_frames >= 0 && g_frame >= g_cfg.max_frames; }
+bool quit_to_menu() { return false; }   // sans fenêtre : fin de session = fin des frames, pas un retour menu
+void clear_quit_to_menu() {}
 void return_to_loader() {
     fflush(stdout);
     exit(0);

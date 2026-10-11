@@ -144,6 +144,8 @@ void axes(float& lx, float& ly) {
     ly = g_ly;
 }
 bool quit_requested() { return g_quit; }
+bool quit_to_menu() { return false; }   // console : RUN+MENU rend au loader, pas de retour menu ici
+void clear_quit_to_menu() {}
 
 // Même mécanisme que le retour loader des autres jeux AKA : la partition « loader » (ota_1) redevient
 // la partition de démarrage.
